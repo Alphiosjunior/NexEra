@@ -1,1 +1,1 @@
-# NexEra
+# NexEra Education
