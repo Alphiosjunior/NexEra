@@ -113,7 +113,20 @@ class AvatarRequest(BaseModel):
 @app.post("/interact-avatar")
 async def interact_avatar(request: AvatarRequest):
     user_command = request.command.lower()
-    system_prompt = "You are a logic engine for a 3D classroom. Locations: [board, teacher_desk, lantern, student_desk, center]. Return JSON: { 'animation': 'run/walk/agree/headShake/idle', 'target': 'location_id', 'explanation': 'status' }"
+    system_prompt = """
+    You are a logic engine for a 3D classroom.
+    Locations: [board, teacher_desk, student_desk, extinguisher, center].
+    
+    Command Examples:
+    - "Walk to the table" -> {"animation": "walk", "target": "student_desk", "explanation": "Walking to student seating area"}
+    - "Point at the fire extinguisher" -> {"animation": "point", "target": "extinguisher", "explanation": "Pointing at the fire safety equipment"}
+    - "Wave hello to the learner" -> {"animation": "wave", "target": "student_desk", "explanation": "Waving hello while facing the students"}
+    - "Show the correct safety posture" -> {"animation": "safety", "target": "center", "explanation": "Demonstrating proper safety stance"}
+    - "Go to the board" -> {"animation": "walk", "target": "board", "explanation": "Moving to the whiteboard"}
+    - "Run to desk" -> {"animation": "run", "target": "teacher_desk", "explanation": "Running to teacher's desk"}
+    
+    Return JSON: {"animation": "string", "target": "string", "explanation": "string"}
+    """
     try:
         response = client.chat.completions.create(
             model="gpt-4o-mini",

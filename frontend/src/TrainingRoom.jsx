@@ -1,5 +1,5 @@
 import React, { Suspense, useRef, useEffect } from 'react';
-import { Environment, ContactShadows, useGLTF, Text } from '@react-three/drei';
+import { ContactShadows, useGLTF, Text } from '@react-three/drei';
 
 function Model({ url, position, scale, rotation }) {
   const { scene } = useGLTF(url);
@@ -29,7 +29,6 @@ function CurvedDisplay({ position, args, color, roughness = 0.1 }) {
       const geometry = meshRef.current.geometry;
       const positionAttribute = geometry.attributes.position;
       
-      // Only modify once
       if (!geometry.userData.curved) {
         for (let i = 0; i < positionAttribute.count; i++) {
           const x = positionAttribute.getX(i);
@@ -58,15 +57,16 @@ function CurvedDisplay({ position, args, color, roughness = 0.1 }) {
 
 export default function TrainingRoom() {
   const chairUrl = "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/SheenChair/glTF-Binary/SheenChair.glb";
+  const extinguisherUrl = "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/SpecGlossVsMetalRough/glTF-Binary/SpecGlossVsMetalRough.glb";
 
   return (
     <group>
       {/* Professional Lighting Setup */}
-      <ambientLight intensity={0.6} color="#ffffff" />
+      <ambientLight intensity={0.8} color="#ffffff" />
       <directionalLight 
-        position={[10, 8, 5]} 
-        intensity={0.9} 
-        color="#ffffff"
+        position={[5, 10, 5]} 
+        intensity={1.2} 
+        color="#ffffff" 
         castShadow 
         shadow-mapSize-width={2048}
         shadow-mapSize-height={2048}
@@ -76,7 +76,24 @@ export default function TrainingRoom() {
         shadow-camera-top={10}
         shadow-camera-bottom={-10}
       />
-      <pointLight position={[-5, 5, -5]} intensity={0.4} color="#ffffff" />
+      <pointLight position={[0, 4, 0]} intensity={0.5} color="#ffffff" />
+      <pointLight position={[-5, 3, -3]} intensity={0.3} color="#ffffff" />
+      <pointLight position={[5, 3, 3]} intensity={0.3} color="#ffffff" />
+      
+      {/* Custom Sky based on current time */}
+      <mesh>
+        <sphereGeometry args={[100, 32, 32]} />
+        <meshBasicMaterial 
+          color={(() => {
+            const hour = new Date().getHours();
+            if (hour >= 6 && hour < 12) return "#87CEEB"; // Morning blue
+            if (hour >= 12 && hour < 18) return "#87CEEB"; // Afternoon blue
+            if (hour >= 18 && hour < 20) return "#ff6b35"; // Sunset orange
+            return "#191970"; // Night dark blue
+          })()} 
+          side={2}
+        />
+      </mesh>
 
       {/* Classroom Floor with grass outside */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
@@ -94,15 +111,7 @@ export default function TrainingRoom() {
         <meshStandardMaterial color="#22c55e" roughness={0.9} />
       </mesh>
       
-      {/* Professional Contact Shadows */}
-      <ContactShadows 
-        resolution={1024} 
-        scale={24} 
-        blur={1.5} 
-        opacity={0.3} 
-        far={10} 
-        color="#64748b" 
-      />
+      <ContactShadows resolution={512} scale={25} blur={2} opacity={0.3} />
       
       <Suspense fallback={null}>
         {/* Interactive Whiteboard (Target: 'board') */}
@@ -125,7 +134,7 @@ export default function TrainingRoom() {
           <ClassroomLabel position={[0, -0.5, 0]} text="Teacher Workstation" />
         </group>
 
-        {/* Student Learning Stations (Target: 'student_desk') */}
+        {/* Student Learning Stations (Target: 'student_desk') - All 11 chairs */}
         <group>
           {/* Random placement with good spacing */}
           <Model url={chairUrl} position={[-5.2, 0, 1.8]} scale={[2.5, 2.5, 2.5]} rotation={[0, Math.PI, 0]} />
@@ -160,21 +169,18 @@ export default function TrainingRoom() {
           <ClassroomLabel position={[0, -0.5, 4]} text="Student Learning Area" />
         </group>
 
-        {/* AR/VR Equipment Station (Target: 'lantern') */}
-        <group position={[-6, 0, -3]}>
+        {/* Fire Extinguisher - NEW (Target: 'extinguisher') */}
+        <group position={[11, 0, 0]}>
           <Model 
-            url="https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Lantern/glTF-Binary/Lantern.glb" 
-            position={[0, 0, 0]} 
-            scale={[0.15, 0.15, 0.15]} 
+            url={extinguisherUrl} 
+            position={[0, 1.5, 0]} 
+            scale={[3, 3, 3]} 
+            rotation={[0, -Math.PI/2, 0]} 
           />
-          <mesh position={[0, 0.5, 0]}>
-            <cylinderGeometry args={[0.8, 0.8, 1, 8]} />
-            <meshStandardMaterial color="#0ea5e9" roughness={0.3} metalness={0.7} />
-          </mesh>
-          <ClassroomLabel position={[0, -0.8, 0]} text="VR Equipment" />
+          <ClassroomLabel position={[0, -0.8, 0]} text="Fire Extinguisher" />
         </group>
 
-        {/* Classroom Walls with Windows */}
+        {/* Classroom Walls */}
         <mesh position={[0, 3, -8]} receiveShadow>
           <boxGeometry args={[24, 6, 0.2]} />
           <meshStandardMaterial color="#e2e8f0" roughness={0.9} />
@@ -191,21 +197,6 @@ export default function TrainingRoom() {
           <meshStandardMaterial color="#e2e8f0" roughness={0.9} />
         </mesh>
       </Suspense>
-      
-      {/* Custom Sky based on current time */}
-      <mesh>
-        <sphereGeometry args={[100, 32, 32]} />
-        <meshBasicMaterial 
-          color={(() => {
-            const hour = new Date().getHours();
-            if (hour >= 6 && hour < 12) return "#87CEEB"; // Morning blue
-            if (hour >= 12 && hour < 18) return "#87CEEB"; // Afternoon blue
-            if (hour >= 18 && hour < 20) return "#ff6b35"; // Sunset orange
-            return "#191970"; // Night dark blue
-          })()} 
-          side={2}
-        />
-      </mesh>
     </group>
   );
 }
