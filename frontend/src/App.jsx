@@ -4,49 +4,66 @@ import AssetViewer from './AssetViewer';
 import AvatarViewer from './AvatarViewer';
 import './index.css';
 
+// LIVE BACKEND URL
+const API_URL = 'https://nexera-backend-xued.onrender.com';
+
 export default function App() {
-  const [currentTab, setCurrentTab] = useState('test1');
+  const [currentTab, setCurrentTab] = useState('assets');
   
-  // Test 1 State
+  // Asset Generator State
   const [inputText, setInputText] = useState('');
-  const [modelData, setModelData] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [modelData, setModelData] = useState(null);
+  const [assetLoading, setAssetLoading] = useState(false);
 
-  // Test 2 State
+  // Avatar Trainer State
   const [cmd, setCmd] = useState('');
-  const [avatarResponse, setAvatarResponse] = useState({ animation: 'Idle', target: 'none', explanation: 'System Ready' });
+  const [avatarLoading, setAvatarLoading] = useState(false);
+  const [avatarResponse, setAvatarResponse] = useState({
+    animation: 'idle',
+    target: 'center',
+    explanation: 'Avatar ready for commands'
+  });
 
-  // --- API HANDLERS (Keep your existing logic) ---
   const handleGenerate = async () => {
-    setLoading(true);
+    if (!inputText.trim() && !selectedFile) return;
+    
+    setAssetLoading(true);
     const formData = new FormData();
-    formData.append('prompt', inputText);
-    if (selectedFile) {
-      formData.append('image', selectedFile);
-    }
+    if (inputText.trim()) formData.append('prompt', inputText);
+    if (selectedFile) formData.append('image', selectedFile);
+    
     try {
-      const res = await axios.post('http://localhost:8000/generate-asset', formData);
+      // Updated to use Live API
+      const res = await axios.post(`${API_URL}/generate-asset`, formData);
       setModelData(res.data);
-    } catch (e) { console.error(e); }
-    setLoading(false);
-  };
-
-  const handleFileUpload = (e) => {
-    setSelectedFile(e.target.files[0]);
+    } catch (error) {
+      console.error('Asset generation failed:', error);
+    } finally {
+      setAssetLoading(false);
+    }
   };
 
   const handleInteract = async () => {
+    if (!cmd.trim()) return;
+    
+    setAvatarLoading(true);
     try {
-      const res = await axios.post('http://localhost:8000/interact-avatar', { command: cmd });
+      // Updated to use Live API
+      const res = await axios.post(`${API_URL}/interact-avatar`, { command: cmd });
       setAvatarResponse(res.data);
-    } catch (e) { console.error(e); }
+      setCmd('');
+    } catch (error) {
+      console.error('Avatar interaction failed:', error);
+    } finally {
+      setAvatarLoading(false);
+    }
   };
 
   return (
     <div style={{ display: 'flex', height: '100vh', flexDirection: 'column' }}>
       
-      {/* 1. TECHNICAL HEADER */}
+      {/* Header */}
       <header style={{
         height: '48px',
         borderBottom: '1px solid var(--border-subtle)',
@@ -57,158 +74,170 @@ export default function App() {
         background: 'var(--bg-panel)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-            <div style={{ width: 12, height: 12, background: 'var(--accent-primary)', borderRadius: '50%' }}></div>
-            <span style={{ fontWeight: 600, fontSize: '14px', letterSpacing: '-0.02em' }}>NexEra Education Platform</span>
-            <span style={{ fontSize: '12px', color: 'var(--text-tertiary)', marginLeft: 'var(--space-2)' }}>v2.4.0-stable</span>
+          <div style={{ width: 12, height: 12, background: 'var(--accent-primary)', borderRadius: '50%' }}></div>
+          <span style={{ fontWeight: 600, fontSize: '14px', letterSpacing: '-0.02em' }}>NexEra Education Platform</span>
+          <span style={{ fontSize: '12px', color: 'var(--text-tertiary)', marginLeft: 'var(--space-2)' }}>v2.4.0-stable</span>
         </div>
 
-        {/* Tab Switcher (Segmented Control style) */}
+        {/* Tab Switcher */}
         <div style={{ display: 'flex', gap: '4px', background: 'var(--bg-app)', padding: '2px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)' }}>
-            <button 
-                onClick={() => setCurrentTab('test1')}
-                style={{ 
-                    border: 'none', 
-                    background: currentTab === 'test1' ? 'var(--bg-panel)' : 'transparent',
-                    color: currentTab === 'test1' ? 'var(--text-primary)' : 'var(--text-secondary)',
-                    boxShadow: currentTab === 'test1' ? '0 1px 2px rgba(0,0,0,0.2)' : 'none'
-                }}
-            >
-                3D Asset Lab
-            </button>
-            <button 
-                onClick={() => setCurrentTab('test2')}
-                style={{ 
-                    border: 'none', 
-                    background: currentTab === 'test2' ? 'var(--bg-panel)' : 'transparent',
-                    color: currentTab === 'test2' ? 'var(--text-primary)' : 'var(--text-secondary)',
-                    boxShadow: currentTab === 'test2' ? '0 1px 2px rgba(0,0,0,0.2)' : 'none'
-                }}
-            >
-                Simulation Trainer
-            </button>
+          <button 
+            onClick={() => setCurrentTab('assets')}
+            style={{ 
+              border: 'none', 
+              background: currentTab === 'assets' ? 'var(--bg-panel)' : 'transparent',
+              color: currentTab === 'assets' ? 'var(--text-primary)' : 'var(--text-secondary)',
+              boxShadow: currentTab === 'assets' ? '0 1px 2px rgba(0,0,0,0.2)' : 'none'
+            }}
+          >
+            3D Asset Lab
+          </button>
+          <button 
+            onClick={() => setCurrentTab('avatar')}
+            style={{ 
+              border: 'none', 
+              background: currentTab === 'avatar' ? 'var(--bg-panel)' : 'transparent',
+              color: currentTab === 'avatar' ? 'var(--text-primary)' : 'var(--text-secondary)',
+              boxShadow: currentTab === 'avatar' ? '0 1px 2px rgba(0,0,0,0.2)' : 'none'
+            }}
+          >
+            Simulation Trainer
+          </button>
         </div>
       </header>
 
-      {/* 2. MAIN WORKSPACE */}
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-        
-        {/* LEFT SIDEBAR (Controls) */}
-        <aside style={{ 
-            width: '320px', 
-            borderRight: '1px solid var(--border-subtle)', 
-            padding: 'var(--space-4)', 
-            display: 'flex', 
-            flexDirection: 'column', 
-            gap: 'var(--space-4)',
-            background: 'var(--bg-panel)'
-        }}>
-          
-          {currentTab === 'test1' ? (
-            <>
-              <div>
-                <span className="label">Generator Input</span>
+      {/* Main Content */}
+      <div className="main-layout">
+        {/* Sidebar */}
+        <div className="sidebar">
+          {currentTab === 'assets' ? (
+            <div>
+              <h2>Generate 3D Assets</h2>
+              <p className="text-muted mb-4">
+                Describe objects in natural language to generate interactive 3D models for educational content.
+              </p>
+              
+              <div className="mb-3">
+                <label className="status-label mb-2" style={{display: 'block'}}>Object Description</label>
                 <textarea 
-                    value={inputText} 
-                    onChange={(e) => setInputText(e.target.value)} 
-                    placeholder="Describe an object (e.g. 'futuristic helmet', 'red car')..." 
-                    rows={4}
-                    style={{ resize: 'none' }}
+                  value={inputText} 
+                  onChange={(e) => setInputText(e.target.value)} 
+                  placeholder="e.g., medieval helmet, rubber duck, camping lantern"
+                  rows={3}
                 />
-                <div style={{ marginTop: 'var(--space-2)', display: 'flex', justifyContent: 'space-between' }}>
-                    <label style={{ fontSize: '11px', cursor: 'pointer', padding: '6px 12px', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)', background: 'var(--bg-panel)' }}>
-                        {selectedFile ? selectedFile.name.slice(0, 12) + '...' : 'Upload Ref Image'}
-                        <input type="file" accept="image/*" onChange={handleFileUpload} style={{ display: 'none' }} />
-                    </label>
-                    <button className="primary" onClick={handleGenerate} disabled={loading}>
-                        {loading ? 'Processing...' : 'Generate Asset'}
-                    </button>
-                </div>
               </div>
-
+              
+              <div className="mb-3">
+                <label className="status-label mb-2" style={{display: 'block'}}>Upload Image (Optional)</label>
+                <input 
+                  type="file" 
+                  accept="image/*"
+                  onChange={(e) => setSelectedFile(e.target.files[0])}
+                  style={{
+                    width: '100%',
+                    padding: 'var(--space-2)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 'var(--radius)',
+                    fontSize: 'var(--text-base)'
+                  }}
+                />
+              </div>
+              
+              <button 
+                className={`btn btn-primary ${assetLoading ? 'btn-loading' : ''}`}
+                onClick={handleGenerate} 
+                disabled={assetLoading || (!inputText.trim() && !selectedFile)}
+              >
+                {assetLoading ? '' : 'Generate Asset'}
+              </button>
+              
               {modelData && (
-                <div className="card">
-                    <span className="label" style={{ color: 'var(--accent-blue)' }}>Analysis Complete</span>
-                    <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
-                        {modelData.summary}
-                    </p>
-                </div>
+                modelData.error ? (
+                  <div style={{
+                    background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+                    color: 'black',
+                    padding: 'var(--space-3)',
+                    borderRadius: 'var(--radius-lg)',
+                    border: '1px solid #a855f7',
+                    marginTop: 'var(--space-4)'
+                  }}>
+                    <h4 style={{ margin: '0 0 8px 0', fontSize: 'var(--text-lg)', color: 'black' }}>Not Found</h4>
+                    <p style={{ margin: 0, fontSize: 'var(--text-sm)', opacity: 0.8, color: 'black' }}>{modelData.summary}</p>
+                  </div>
+                ) : (
+                  <div className="status-panel">
+                    <h4>Asset Information</h4>
+                    <div className="status-row">
+                      <span className="status-label">Status</span>
+                      <span className="status-value">Ready</span>
+                    </div>
+                    <div className="status-row">
+                      <span className="status-label">Type</span>
+                      <span className="status-value">3D Model</span>
+                    </div>
+                    <p className="text-muted mt-3">{modelData.summary}</p>
+                  </div>
+                )
               )}
-            </>
-          ) : (
-            <>
-              <div>
-                <span className="label">Instructor Command Console</span>
-                <div style={{ position: 'relative' }}>
-                    <input 
-                        type="text" 
-                        value={cmd} 
-                        onChange={(e) => setCmd(e.target.value)} 
-                        placeholder="e.g. 'Walk to the whiteboard'..." 
-                        onKeyDown={(e) => e.key === 'Enter' && handleInteract()}
-                    />
-                    <span style={{ position: 'absolute', right: 8, top: 8, fontSize: '10px', color: 'var(--text-tertiary)', border: '1px solid var(--border-subtle)', padding: '0 4px', borderRadius: 3 }}>ENTER</span>
-                </div>
-                <div style={{ marginTop: 'var(--space-2)' }}>
-                    <button className="primary" style={{ width: '100%' }} onClick={handleInteract}>Transmit Command</button>
-                </div>
-              </div>
-
-              <div className="card">
-                <span className="label">Telemetry</span>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2)', marginBottom: 'var(--space-2)' }}>
-                    <div>
-                        <span className="label">Action</span>
-                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--accent-primary)' }}>
-                            {avatarResponse.animation.toUpperCase()}
-                        </div>
-                    </div>
-                    <div>
-                        <span className="label">Target</span>
-                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px' }}>
-                            {avatarResponse.target.toUpperCase()}
-                        </div>
-                    </div>
-                </div>
-                <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 'var(--space-2)' }}>
-                    <span className="label">System Log</span>
-                    <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-                        "{avatarResponse.explanation}"
-                    </p>
-                </div>
-              </div>
-
-              <div className="card" style={{ background: 'transparent', border: '1px dashed var(--border-subtle)' }}>
-                <span className="label">Manual Override</span>
-                <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
-                    <kbd style={{ background: 'var(--bg-input)', border: '1px solid var(--border-subtle)', borderRadius: 4, padding: '2px 6px', fontSize: 11, color: 'var(--text-secondary)' }}>W</kbd>
-                    <kbd style={{ background: 'var(--bg-input)', border: '1px solid var(--border-subtle)', borderRadius: 4, padding: '2px 6px', fontSize: 11, color: 'var(--text-secondary)' }}>A</kbd>
-                    <kbd style={{ background: 'var(--bg-input)', border: '1px solid var(--border-subtle)', borderRadius: 4, padding: '2px 6px', fontSize: 11, color: 'var(--text-secondary)' }}>S</kbd>
-                    <kbd style={{ background: 'var(--bg-input)', border: '1px solid var(--border-subtle)', borderRadius: 4, padding: '2px 6px', fontSize: 11, color: 'var(--text-secondary)' }}>D</kbd>
-                    <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>to Navigate</span>
-                </div>
-              </div>
-            </>
-          )}
-        </aside>
-
-        {/* RIGHT VIEWPORT (The Canvas) */}
-        <main style={{ flex: 1, position: 'relative', background: 'var(--bg-app)' }}>
-            {currentTab === 'test1' ? (
-                <AssetViewer url={modelData?.model_url} />
-            ) : (
-                <AvatarViewer animationName={avatarResponse.animation} target={avatarResponse.target} />
-            )}
-            
-            {/* Overlay Watermark (Optional for "Pro" feel) */}
-            <div style={{ 
-                position: 'absolute', bottom: 20, right: 20, 
-                pointerEvents: 'none', opacity: 0.3, 
-                fontSize: '10px', fontFamily: 'var(--font-mono)' 
-            }}>
-                RENDER_ENGINE::THREE.JS // LATENCY: 12ms
             </div>
-        </main>
-
+          ) : (
+            <div>
+              <h2>Avatar Training</h2>
+              <p className="text-muted mb-4">
+                Control the classroom avatar using natural language commands. Guide movement and actions through conversation.
+              </p>
+              
+              <div className="mb-3">
+                <label className="status-label mb-2" style={{display: 'block'}}>Voice Command</label>
+                <textarea 
+                  value={cmd} 
+                  onChange={(e) => setCmd(e.target.value)} 
+                  placeholder="e.g., Walk to the whiteboard, Go to the teacher's desk, Wave hello"
+                  rows={3}
+                />
+              </div>
+              
+              <button 
+                className={`btn btn-primary ${avatarLoading ? 'btn-loading' : ''}`}
+                onClick={handleInteract}
+                disabled={avatarLoading || !cmd.trim()}
+              >
+                {avatarLoading ? '' : 'Send Command'}
+              </button>
+              
+              <div className="status-panel">
+                <h4>Avatar Status</h4>
+                <div className="status-row">
+                  <span className="status-label">Action</span>
+                  <span className="status-value">{avatarResponse.animation}</span>
+                </div>
+                <div className="status-row">
+                  <span className="status-label">Target</span>
+                  <span className="status-value">{avatarResponse.target}</span>
+                </div>
+                <div className="status-row">
+                  <span className="status-label">Status</span>
+                  <span className="status-value">{avatarLoading ? 'Processing...' : 'Ready'}</span>
+                </div>
+                <p className="text-muted mt-3">{avatarResponse.explanation}</p>
+              </div>
+            </div>
+          )}
+        </div>
+        
+        {/* 3D Viewer */}
+        <div className="content">
+          <div className="viewer-container">
+            {currentTab === 'assets' ? (
+              <AssetViewer url={modelData?.model_url} />
+            ) : (
+              <AvatarViewer 
+                animationName={avatarResponse.animation} 
+                target={avatarResponse.target} 
+              />
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
