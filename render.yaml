@@ -1,0 +1,15 @@
+services:
+  # THE BRAIN (Python Backend)
+  - type: web
+    name: nexera-backend
+    env: python
+    region: frankfurt # Choose 'ohio', 'oregon', 'frankfurt', or 'singapore'
+    root: backend
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false # You will enter this in the dashboard securely
+      - key: PYTHON_VERSION
+        value: 3.9.18
