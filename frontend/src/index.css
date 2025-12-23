@@ -1,39 +1,32 @@
 :root {
   /* --- 1. STRICT COLOR PALETTE (Deep Focus Theme) --- */
-  --bg-app: #0f1115;       /* Deep Charcoal (Not Pitch Black) */
-  --bg-panel: #161b22;     /* Slightly Lighter for Cards/Sidebar */
-  --bg-input: #0d1117;     /* Darker for inputs */
+  --bg-app: #0f1115;       /* Deep Charcoal */
+  --bg-panel: #161b22;     /* Lighter Panel Background */
+  --bg-input: #0d1117;     /* Dark Input Background */
   
   --border-subtle: rgba(255, 255, 255, 0.08);
   --border-active: rgba(255, 255, 255, 0.2);
   
   --text-primary: #f0f6fc;
   --text-secondary: #8b949e;
-  --text-tertiary: #484f58;
-
-  --accent-primary: #238636; /* Technical Green (Success/Action) */
+  
+  --accent-primary: #238636; /* Technical Green */
   --accent-hover: #2ea043;
-  --accent-blue: #1f6feb;   /* Tech Blue (Focus states) */
+  --accent-blue: #1f6feb;   /* Focus Blue */
+  --accent-danger: #da3633;
 
-  /* --- 2. SPACING SYSTEM (8pt Grid) --- */
-  --space-1: 4px;
+  /* --- 2. SPACING & RADIUS --- */
   --space-2: 8px;
   --space-3: 16px;
   --space-4: 24px;
-  --space-5: 32px;
-  --space-6: 48px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
 
-  /* --- 3. RADIUS TOKENS --- */
-  --radius-sm: 4px;  /* Inputs, Buttons */
-  --radius-md: 8px;  /* Cards */
-  --radius-lg: 12px; /* Modals */
-
-  /* --- 4. TYPOGRAPHY --- */
+  /* --- 3. FONTS --- */
   --font-stack: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 }
 
-/* RESET */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
@@ -41,80 +34,72 @@ body {
   background-color: var(--bg-app);
   color: var(--text-primary);
   line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
   height: 100vh;
   overflow: hidden;
 }
 
-/* --- UTILITY CLASSES FOR CONSISTENCY --- */
+/* --- LAYOUT UTILS --- */
+.app-container { display: flex; height: 100vh; flex-direction: column; }
+.main-workspace { display: flex; flex: 1; overflow: hidden; position: relative; }
 
-/* 1. BUTTONS (Standardized) */
-button {
-  font-family: var(--font-stack);
-  font-size: 13px;
-  font-weight: 500;
-  padding: 6px 12px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-subtle);
+/* HEADER */
+.nav-header {
+  height: 50px;
+  border-bottom: 1px solid var(--border-subtle);
   background: var(--bg-panel);
-  color: var(--text-primary);
-  cursor: pointer;
-  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-4);
 }
+.logo { font-weight: 700; letter-spacing: -0.02em; display: flex; align-items: center; gap: 8px; }
+.logo-dot { width: 10px; height: 10px; background: var(--accent-primary); border-radius: 50%; box-shadow: 0 0 8px rgba(46, 160, 67, 0.4); }
 
-button:hover {
-  border-color: var(--text-secondary);
-  background: #21262d;
-}
-
-button.primary {
-  background: var(--accent-primary);
-  border-color: rgba(255,255,255,0.1);
-  color: white;
-  font-weight: 600;
-}
-
-button.primary:hover {
-  background: var(--accent-hover);
-}
-
-/* 2. INPUTS (Technical Look) */
-input[type="text"], textarea {
-  width: 100%;
-  background: var(--bg-input);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
-  padding: 8px 12px;
-  color: var(--text-primary);
-  font-family: var(--font-stack);
-  font-size: 14px;
-  transition: border 0.2s;
-}
-
-input:focus, textarea:focus {
-  outline: none;
-  border-color: var(--accent-blue);
-  box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.15);
-}
-
-/* 3. CARDS (Glassy/Technical) */
-.card {
+/* SIDEBAR & CONTROLS */
+.sidebar {
+  width: 320px;
   background: var(--bg-panel);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: var(--space-3);
+  border-right: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-4);
+  gap: var(--space-4);
+  z-index: 10;
+  overflow-y: auto;
 }
+.sidebar h2 { font-size: 14px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: var(--space-2); }
 
-.label {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-secondary);
-  margin-bottom: var(--space-1);
-  display: block;
+/* INPUTS & BUTTONS */
+textarea, input[type="text"] {
+  width: 100%; background: var(--bg-input); border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm); padding: 12px; color: var(--text-primary);
+  font-family: var(--font-stack); font-size: 14px; resize: none;
 }
+textarea:focus, input:focus { outline: none; border-color: var(--accent-blue); }
 
-/* SCROLLBAR */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: var(--bg-app); }
-::-webkit-scrollbar-thumb { background: var(--text-tertiary); border-radius: 4px; }
+.btn {
+  width: 100%; padding: 10px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle); background: var(--bg-panel);
+  color: var(--text-primary); font-weight: 600; cursor: pointer;
+}
+.btn-primary { background: var(--accent-primary); border-color: rgba(255,255,255,0.1); color: white; }
+.btn-primary:hover { background: var(--accent-hover); }
+
+/* STATUS PANELS */
+.status-panel {
+  background: rgba(0,0,0,0.2); border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md); padding: var(--space-3); margin-top: var(--space-3);
+}
+.status-row { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 13px; }
+.status-label { color: var(--text-secondary); }
+.status-value { font-family: var(--font-mono); color: var(--accent-blue); }
+
+/* TAB SWITCHER */
+.tab-switcher { background: var(--bg-app); padding: 3px; border-radius: 6px; border: 1px solid var(--border-subtle); display: flex; gap: 2px; }
+.tab-btn { padding: 4px 12px; font-size: 12px; background: transparent; color: var(--text-secondary); border: none; border-radius: 4px; cursor: pointer; }
+.tab-btn.active { background: var(--bg-panel); color: var(--text-primary); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+
+/* VIEWPORT */
+.viewer-area { flex: 1; background: radial-gradient(circle at center, #1b1f27 0%, #0f1115 100%); position: relative; }
+.text-muted { color: var(--text-secondary); font-size: 13px; margin-bottom: 12px; }
+.mb-3 { margin-bottom: var(--space-3); }
