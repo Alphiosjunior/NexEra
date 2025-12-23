@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://mini0405.github.io/nexera",
+  "homepage": "https://mini0405.github.io/NexEra",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

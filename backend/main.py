@@ -22,6 +22,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# --- NEW: ROOT ENDPOINT (Fixes the Render 404 Error) ---
+@app.get("/")
+async def root():
+    return {"message": "NexEra Backend is Live & Running!"}
+
 # --- 1. THE ULTIMATE MODEL CATALOG ---
 # A massive list of public assets from Three.js and Khronos
 MODEL_CATALOG = {
