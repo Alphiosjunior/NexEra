@@ -4,7 +4,7 @@ import AssetViewer from './AssetViewer';
 import AvatarViewer from './AvatarViewer';
 import './index.css';
 
-const API_URL = 'https://nexera-backend-xued.onrender.com';
+const API_URL = 'https://nexeranexera-backend.onrender.com';
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState('assets');
