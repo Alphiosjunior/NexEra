@@ -23,20 +23,28 @@ const OBSTACLES = [
   new THREE.Vector3(11, 0, 0)
 ];
 
-// Maps AI animation names to actual Xbot.glb clip names
+// Actual Xbot.glb clips: agree, headShake, idle, run, sad_pose, sneak_pose, walk
 const ANIMATION_MAP = {
-  'idle':    'idle',
-  'walk':    'walk',
-  'run':     'run',
-  'wave':    'wave',
-  'dance':   'dance',
-  'jump':    'jump',
-  'agree':   'agree',
-  'no':      'no',
-  'point':   'agree',
-  'safety':  'idle',
-  'sit':     'idle',
-  'sitting': 'idle',
+  'idle':      'idle',
+  'walk':      'walk',
+  'run':       'run',
+  'agree':     'agree',
+  'wave':      'agree',
+  'point':     'agree',
+  'yes':       'agree',
+  'nod':       'agree',
+  'headshake': 'headShake',
+  'no':        'headShake',
+  'shake':     'headShake',
+  'dance':     'run',
+  'jump':      'run',
+  'sad':       'sad_pose',
+  'sit':       'sad_pose',
+  'sitting':   'sad_pose',
+  'safety':    'sneak_pose',
+  'sneak':     'sneak_pose',
+  'crouch':    'sneak_pose',
+  'posture':   'sneak_pose',
 };
 
 function resolveAnimation(name) {

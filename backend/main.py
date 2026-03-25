@@ -119,17 +119,27 @@ class AvatarRequest(BaseModel):
 async def interact_avatar(request: AvatarRequest):
     user_command = request.command.lower()
     system_prompt = """
-    You are a logic engine for a 3D classroom.
-    Locations: [board, teacher_desk, student_desk, extinguisher, center].
-    
-    Command Examples:
-    - "Walk to the table" -> {"animation": "walk", "target": "student_desk", "explanation": "Walking to student seating area"}
-    - "Point at the fire extinguisher" -> {"animation": "point", "target": "extinguisher", "explanation": "Pointing at the fire safety equipment"}
-    - "Wave hello to the learner" -> {"animation": "wave", "target": "student_desk", "explanation": "Waving hello while facing the students"}
-    - "Show the correct safety posture" -> {"animation": "safety", "target": "center", "explanation": "Demonstrating proper safety stance"}
-    - "Go to the board" -> {"animation": "walk", "target": "board", "explanation": "Moving to the whiteboard"}
-    - "Run to desk" -> {"animation": "run", "target": "teacher_desk", "explanation": "Running to teacher's desk"}
-    
+    You are a logic engine for a 3D classroom avatar.
+    Available locations: board, teacher_desk, student_desk, extinguisher, center, none.
+    Available animations (ONLY use these exact values): idle, walk, run, agree, headShake, sad_pose, sneak_pose.
+
+    Mapping guide:
+    - walking/moving -> walk
+    - running -> run
+    - waving/pointing/nodding/agreeing -> agree
+    - shaking head/disagreeing/no -> headShake
+    - sitting/sad/resting -> sad_pose
+    - safety posture/crouching/sneaking -> sneak_pose
+    - standing still/waiting -> idle
+
+    Examples:
+    - "Walk to the board" -> {"animation": "walk", "target": "board", "explanation": "Walking to the whiteboard"}
+    - "Wave hello" -> {"animation": "agree", "target": "none", "explanation": "Waving hello to the class"}
+    - "Point at the fire extinguisher" -> {"animation": "agree", "target": "extinguisher", "explanation": "Pointing at the fire safety equipment"}
+    - "Show safety posture" -> {"animation": "sneak_pose", "target": "center", "explanation": "Demonstrating proper safety stance"}
+    - "Sit down" -> {"animation": "sad_pose", "target": "none", "explanation": "Sitting down"}
+    - "Run to desk" -> {"animation": "run", "target": "teacher_desk", "explanation": "Running to the teacher's desk"}
+
     Return JSON: {"animation": "string", "target": "string", "explanation": "string"}
     """
     try:
